@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Update Notifier</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #121212; color: #FFFFFF; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { text-align: center; }
+        .version { font-size: 2rem; margin-top: 20px; }
+        .button { padding: 10px 20px; background-color: #1E90FF; border: none; border-radius: 5px; color: #FFFFFF; cursor: pointer; }
+        .button:hover { background-color: #4682B4; }
+    </style>
+    <script>
+        let lastVersion = null;
+
+        async function fetchLatestVersion() {
+            const response = await fetch('https://clientsettings.roblox.com/v2/client-version/WindowsPlayer');
+            const data = await response.json();
+            const latestVersion = data.clientVersionUpload;
+            document.getElementById('version').textContent = `Latest Roblox Version: ${latestVersion}`;
+
+            if (latestVersion !== lastVersion) {
+                lastVersion = latestVersion;
+
+                // Send version to Discord Webhook
+                fetch('https://discord.com/api/webhooks/1373820775689224353/d_uOQ_MTyT7g89a7ERQ54l72nNEXZQMdePiLmuZLChbvqEnstpWE-aQnY_4PYDvqr7Ay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: `🚨 New Roblox Update Detected! Version: ${latestVersion}` })
+                });
+            }
+        }
+
+        // Auto-fetch on load
+        window.onload = fetchLatestVersion;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Roblox Update Notifier</h1>
+        <p class="version" id="version">Loading...</p>
+        <button class="button" onclick="fetchLatestVersion()">Check for Updates</button>
+    </div>
+</body>
+</html>
